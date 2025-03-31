@@ -15,9 +15,8 @@ jobs:
 
       - name: Ensure Minikube is running
         run: |
-          sudo apt update && sudo apt install -y unzip curl
-          minikube start --driver=docker --force
-          export KUBECONFIG=$(minikube kubeconfig)
+          minikube status || minikube start --driver=docker
+          export KUBECONFIG=$HOME/.kube/config
 
       - name: Install Helm
         uses: azure/setup-helm@v3
@@ -33,9 +32,7 @@ jobs:
 
       - name: Wait for ArgoCD pods to be ready
         run: |
-          echo "Aguardando os pods do ArgoCD iniciarem..."
-          kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd || \
-          (echo "Tempo esgotado! Listando os pods para debugging:" && kubectl get pods -n argocd && exit 1)
+          kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
 
       - name: Get ArgoCD admin password
         run: |
