@@ -16,6 +16,7 @@ jobs:
       - name: Ensure Minikube is running
         run: |
           minikube status || minikube start --driver=docker
+          sudo apt update && sudo apt install -y unzip
           export KUBECONFIG=$HOME/.kube/config
 
       - name: Install Helm
