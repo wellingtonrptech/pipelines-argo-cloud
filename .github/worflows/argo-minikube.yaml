@@ -1,0 +1,42 @@
+name: ArgoCD_Minikube
+run-name: argocd_minikube
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "argocd_minikube.yaml"
+
+jobs:
+  deploy:
+    runs-on: self-hosted # Usa o runner no seu WSL
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure Minikube is running
+        run: |
+          minikube status || minikube start --driver=docker
+          export KUBECONFIG=$HOME/.kube/config
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      - name: Add ArgoCD Helm repo
+        run: |
+          helm repo add argo https://argoproj.github.io/argo-helm
+          helm repo update
+
+      - name: Install ArgoCD using Helm
+        run: |
+          helm install argocd argo/argo-cd --namespace argocd --create-namespace
+
+      - name: Wait for ArgoCD pods to be ready
+        run: |
+          kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
+
+      - name: Get ArgoCD admin password
+        run: |
+          kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
