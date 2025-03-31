@@ -1,12 +1,9 @@
 name: ArgoCD_Minikube
-run-name: argocd_minikube
 
 on:
   push:
     branches:
       - main
-    paths:
-      - "argocd_minikube.yaml"
 
 jobs:
   deploy:
