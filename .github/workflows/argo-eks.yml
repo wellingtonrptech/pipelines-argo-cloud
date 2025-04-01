@@ -3,9 +3,9 @@ name: Install ArgoCD on EKS
 on:
   push:
     branches:
-      - main  
+      - main
     paths:
-      - .github/workflows/argo-eks.yml  
+      - .github/workflows/argo-eks.yml  # Garante que o workflow seja disparado apenas para alterações nesse arquivo
 
 jobs:
   deploy:
@@ -28,25 +28,31 @@ jobs:
       - name: Configure kubectl for EKS
         run: |
           aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
+          kubectl config view  # Verificar a configuração do kubectl
 
-      # 4. Instalar o Helm
+      # 4. Verificar se o kubectl consegue acessar o cluster EKS
+      - name: Verify kubectl can access EKS cluster
+        run: |
+          kubectl get nodes  # Isso verifica se o kubectl pode se comunicar com o cluster EKS
+
+      # 5. Instalar o Helm
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
           helm version --short  # Verifica a versão do Helm instalada
 
-      # 5. Adicionar o repositório do ArgoCD no Helm
+      # 6. Adicionar o repositório do ArgoCD no Helm
       - name: Add ArgoCD Helm repository
         run: |
           helm repo add argo https://argoproj.github.io/argo-helm
           helm repo update
 
-      # 6. Instalar o ArgoCD no EKS
+      # 7. Instalar o ArgoCD no EKS
       - name: Install ArgoCD on EKS
         run: |
           helm install argocd argo/argo-cd --namespace argocd --create-namespace
-          
-      # 7. (Opcional) Espera para o ArgoCD estar totalmente implantado
+
+      # 8. (Opcional) Espera para o ArgoCD estar totalmente implantado
       - name: Wait for ArgoCD to be deployed
         run: |
           kubectl rollout status deployment/argocd-server -n argocd --timeout=600s
