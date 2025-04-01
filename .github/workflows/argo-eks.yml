@@ -5,7 +5,7 @@ on:
     branches:
       - main  
     paths:
-      - .github/workflows/argocd-eks.yml  
+      - .github/workflows/argo-eks.yml  
 
 jobs:
   deploy:
