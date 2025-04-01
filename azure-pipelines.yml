@@ -28,7 +28,7 @@ jobs:
 
   - script: |
       # Configurar kubectl para EKS
-      aws eks --region us-east-1 update-kubeconfig --name my-cluster-name  # Substitua com o nome do seu cluster
+      aws eks --region us-east-1 update-kubeconfig --name devops  # Substitua com o nome do seu cluster
       export KUBECONFIG=$HOME/.kube/config
     displayName: 'Configure kubectl for EKS'
 
