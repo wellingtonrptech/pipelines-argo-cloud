@@ -30,6 +30,8 @@ jobs:
       # Configurar kubectl para EKS
       aws eks --region us-east-1 update-kubeconfig --name devops  # Substitua com o nome do seu cluster
       export KUBECONFIG=$HOME/.kube/config
+      #Instalando Kubernetes 
+      sudo snap install kubectl --classic
     displayName: 'Configure kubectl for EKS'
 
   - task: HelmInstaller@1
