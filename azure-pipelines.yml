@@ -1,41 +1,54 @@
-name: ArgoCD_Minikube
-
-on:
-  push:
-    branches:
+trigger:
+  branches:
+    include:
       - main
 
 jobs:
-  deploy:
-    runs-on: self-hosted # Usa o runner no seu WSL
+- job: Deploy
+  displayName: 'Deploy to EKS with ArgoCD'
+  pool:
+    vmImage: 'ubuntu-latest'  # Ou use um agente auto-hospedado
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  steps:
 
-      - name: Ensure Minikube is running
-        run: |
-          minikube status || minikube start --driver=docker
-          export KUBECONFIG=$HOME/.kube/config
 
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-        env:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-      - name: Add ArgoCD Helm repo
-        run: |
-          helm repo add argo https://argoproj.github.io/argo-helm
-          helm repo update
+  - script: |
+      # Instalando o AWS CLI
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      unzip awscliv2.zip
+      sudo ./aws/install
+    displayName: 'Install AWS CLI'
 
-      - name: Install ArgoCD using Helm
-        run: |
-          helm install argocd argo/argo-cd --namespace argocd --create-namespace
+  - script: |
+      # Configurar o AWS CLI com as credenciais
+      aws configure set aws_access_key_id $(AWS_ACCESS_KEY_ID)
+      aws configure set aws_secret_access_key $(AWS_SECRET_ACCESS_KEY)
+      aws configure set region us-east-1  # Substitua pela sua região
+    displayName: 'Configure AWS CLI'
 
-      - name: Wait for ArgoCD pods to be ready
-        run: |
-          kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
+  - script: |
+      # Configurar kubectl para EKS
+      aws eks --region us-east-1 update-kubeconfig --name my-cluster-name  # Substitua com o nome do seu cluster
+      export KUBECONFIG=$HOME/.kube/config
+    displayName: 'Configure kubectl for EKS'
 
-      - name: Get ArgoCD admin password
-        run: |
-          kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+  - task: HelmInstaller@1
+    inputs:
+      helmVersionToInstall: 'latest'
+
+  - script: |
+      helm repo add argo https://argoproj.github.io/argo-helm
+      helm repo update
+    displayName: 'Add ArgoCD Helm repo'
+
+  - script: |
+      helm install argocd argo/argo-cd --namespace argocd --create-namespace
+    displayName: 'Install ArgoCD using Helm'
+
+  - script: |
+      kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
+    displayName: 'Wait for ArgoCD pods to be ready'
+
+  - script: |
+      kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+    displayName: 'Get ArgoCD admin password'
