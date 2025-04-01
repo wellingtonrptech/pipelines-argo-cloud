@@ -3,11 +3,13 @@ name: ArgoCD_Minikube
 on:
   push:
     branches:
-      - main
+      - main  # Gatilho para push na branch main
+    paths:
+      - .github/workflows/argocd-minikube.yml  # Gatilho somente quando esse arquivo for alterado
 
 jobs:
   deploy:
-    runs-on: self-hosted # Usa o runner no seu WSL
+    runs-on: self-hosted  # Usa o runner no seu WSL
 
     steps:
       - name: Checkout repository
