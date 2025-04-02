@@ -29,12 +29,11 @@ jobs:
   - script: |
       # Configurar kubectl para EKS
       aws eks --region us-east-1 update-kubeconfig --name devops  # Substitua com o nome do seu cluster
+      sudo snap install kubectl --classic
       cat $HOME/.kube/config
       kubectl config use-context arn:aws:eks:us-east-1:585467941673:cluster/devops
-
-
-      #Instalando Kubernetes 
-      sudo snap install kubectl --classic
+      kubectl config get-contexts
+     
       kubectl config current-context
       kubectl get nodes
     displayName: 'Configure kubectl for EKS'
