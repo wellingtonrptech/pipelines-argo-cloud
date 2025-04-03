@@ -32,8 +32,9 @@ jobs:
 
   - script: |
       aws eks --region us-east-1 update-kubeconfig --name devops
+      kubectl get nodes
     displayName: 'Configure kubectl for EKS'
-    
+
   - task: HelmInstaller@1
     inputs:
       helmVersionToInstall: 'latest'
