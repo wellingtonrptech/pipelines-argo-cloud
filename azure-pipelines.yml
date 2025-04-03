@@ -37,13 +37,10 @@ jobs:
   - script: |
       helm repo add argo https://argoproj.github.io/argo-helm
       helm repo update
-      kubectl config view
-      kubectl get nodes
-      kubectl get svc --kubeconfig=/path/to/kubeconfig
-
     displayName: 'Add ArgoCD Helm repo'
 
   - script: |
+      kubectl config current-context
       helm install argocd argo/argo-cd --namespace argocd --create-namespace
     displayName: 'Install ArgoCD using Helm'
 
