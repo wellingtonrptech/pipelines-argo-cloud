@@ -39,6 +39,8 @@ jobs:
       helm repo update
       kubectl config view
       kubectl get nodes
+      kubectl get svc --kubeconfig=/path/to/kubeconfig
+
     displayName: 'Add ArgoCD Helm repo'
 
   - script: |
