@@ -18,14 +18,21 @@ jobs:
     displayName: 'Install AWS CLI'
 
   - script: |
-      aws configure set aws_access_key_id $(DEVOPS_ACESS_KEY)
-      aws configure set aws_secret_access_key $(DEVOPS_SECRET_KEY)
+      aws configure set aws_access_key_id $(AWS_ACCESS_KEY_ID)
+      aws configure set aws_secret_access_key $(AWS_SECRET_ACCESS_KEY)
       aws configure set region us-east-1
     displayName: 'Configure AWS CLI'
 
   - script: |
       aws eks --region us-east-1 update-kubeconfig --name devops
     displayName: 'Configure kubectl for EKS'
+
+  - script: |
+      # Instalando o kubectl
+      curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+      chmod +x ./kubectl
+      sudo mv ./kubectl /usr/local/bin/kubectl
+    displayName: 'Install kubectl'
 
   - task: HelmInstaller@1
     inputs:
