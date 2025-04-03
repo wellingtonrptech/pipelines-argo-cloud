@@ -7,10 +7,8 @@ jobs:
 - job: Deploy
   displayName: 'Deploy to EKS with ArgoCD'
   pool:
-    vmImage: 'ubuntu-latest'  # Ou use um agente auto-hospedado
-
+    vmImage: 'ubuntu-latest'
   steps:
-
 
   - script: |
       # Instalando o AWS CLI
@@ -20,10 +18,9 @@ jobs:
     displayName: 'Install AWS CLI'
 
   - script: |
-      # Configurar o AWS CLI com as credenciais
       aws configure set aws_access_key_id $(DEVOPS_ACESS_KEY)
       aws configure set aws_secret_access_key $(DEVOPS_SECRET_KEY)
-      aws configure set region us-east-1  # Substitua pela sua região
+      aws configure set region us-east-1
     displayName: 'Configure AWS CLI'
 
   - script: |
@@ -40,7 +37,7 @@ jobs:
     displayName: 'Add ArgoCD Helm repo'
 
   - script: |
-      kubectl config current-context
+      kubectl get svc  
       helm install argocd argo/argo-cd --namespace argocd --create-namespace
     displayName: 'Install ArgoCD using Helm'
 
