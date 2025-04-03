@@ -24,16 +24,16 @@ jobs:
     displayName: 'Configure AWS CLI'
 
   - script: |
-      aws eks --region us-east-1 update-kubeconfig --name devops
-    displayName: 'Configure kubectl for EKS'
-
-  - script: |
       # Instalando o kubectl
       curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
       chmod +x ./kubectl
       sudo mv ./kubectl /usr/local/bin/kubectl
     displayName: 'Install kubectl'
 
+  - script: |
+      aws eks --region us-east-1 update-kubeconfig --name devops
+    displayName: 'Configure kubectl for EKS'
+    
   - task: HelmInstaller@1
     inputs:
       helmVersionToInstall: 'latest'
