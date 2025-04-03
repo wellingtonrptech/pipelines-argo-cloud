@@ -37,6 +37,8 @@ jobs:
   - script: |
       helm repo add argo https://argoproj.github.io/argo-helm
       helm repo update
+      kubectl config view
+      kubectl get nodes
     displayName: 'Add ArgoCD Helm repo'
 
   - script: |
